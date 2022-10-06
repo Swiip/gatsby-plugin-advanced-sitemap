@@ -1,6 +1,5 @@
 import xml from 'xml';
 import moment from 'moment';
-import path from 'path';
 
 import * as utils from './utils';
 
@@ -31,7 +30,6 @@ export default class SiteMapIndexGenerator {
     generateSiteMapUrlElements({
         sources = [],
         siteUrl,
-        pathPrefix,
         resourcesOutput,
     }) {
         return sources.map((source) => {
@@ -40,7 +38,7 @@ export default class SiteMapIndexGenerator {
                 .replace(/^\//, ``);
             const siteMapUrl = source.url
                 ? source.url
-                : new URL(path.join(pathPrefix, filePath), siteUrl).toString();
+                : new URL(filePath, siteUrl).toString();
             const lastModified = source.url
                 ? moment(new Date(), this.ISO8601_FORMAT).toISOString()
                 : this.types[source.sitemap].lastModified ||

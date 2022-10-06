@@ -11,14 +11,14 @@ import { getNodePath } from './helpers';
 
 let siteURL;
 
-const copyStylesheet = async ({ siteUrl, pathPrefix, indexOutput }) => {
+const copyStylesheet = async ({ siteUrl, indexOutput }) => {
     const siteRegex = /(\{\{blog-url\}\})/g;
 
     // Get our stylesheet template
     const data = await utils.readFile(XSLFILE);
 
     // Replace the `{{blog-url}}` variable with our real site URL
-    const sitemapStylesheet = data.toString().replace(siteRegex, new URL(path.join(pathPrefix, indexOutput), siteUrl).toString());
+    const sitemapStylesheet = data.toString().replace(siteRegex, new URL(indexOutput, siteUrl).toString());
 
     // Save the updated stylesheet to the public folder, so it will be
     // available for the xml sitemap files
@@ -149,15 +149,15 @@ const serialize = ({ ...sources } = {}, { site, allSitePage }, { mapping, addUnc
     return nodes;
 };
 
-exports.onPostBuild = async ({ graphql, pathPrefix }, pluginOptions) => {
+exports.onPostBuild = async ({ graphql }, pluginOptions) => {
     let queryRecords;
 
     // Passing the config option addUncaughtPages will add all pages which are not covered by passed mappings
     // to the default `pages` sitemap. Otherwise they will be ignored.
     const options = pluginOptions.addUncaughtPages ? merge(defaultOptions, pluginOptions) : Object.assign({}, defaultOptions, pluginOptions);
 
-    const indexSitemapFile = path.join(PUBLICPATH, pathPrefix, options.output);
-    const resourcesSitemapFile = path.join(PUBLICPATH, pathPrefix, RESOURCESFILE);
+    const indexSitemapFile = path.join(PUBLICPATH, options.output);
+    const resourcesSitemapFile = path.join(PUBLICPATH, RESOURCESFILE);
 
     delete options.plugins;
     delete options.createLinkInHead;
@@ -194,7 +194,6 @@ exports.onPostBuild = async ({ graphql, pathPrefix }, pluginOptions) => {
 
     // The siteUrl is only available after we have the returned query results
     options.siteUrl = siteURL;
-    options.pathPrefix = pathPrefix;
 
     await copyStylesheet(options);
 
